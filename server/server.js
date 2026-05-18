@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 import forecastRoutes from "./forecastRoutes.js";
+import mlDiagnosticsRoutes from "./mlDiagnosticsRoutes.js";
 
 dotenv.config();
 
@@ -15,6 +16,8 @@ app.use(
     limit: "10mb",
   })
 );
+
+
 
 app.use("/forecast", forecastRoutes);
 
@@ -122,56 +125,59 @@ app.post("/chat", async (req, res) => {
 
     const completion =
       await client.chat.completions.create({
-        model: "openai/gpt-oss-120b",
+        // model: "openai/gpt-oss-120b",
 
-        temperature: 0.4,
+        model: "llama-3.3-70b-versatile",
 
-        max_tokens: 500,
+        temperature: 0.1,
 
+        max_tokens: 900,
+
+        
         messages: [
           {
             role: "system",
 
             content: `
-You are Ecomlytics AI.
+  You are Ecomlytics AI.
 
-You are a senior ecommerce business intelligence advisor.
+  You are a senior ecommerce business intelligence advisor.
 
-Your responsibilities:
-- analyze business performance
-- identify risks
-- explain trends
-- recommend growth actions
-- improve conversion
-- help with strategic decisions
+  Your responsibilities:
+  - analyze business performance
+  - identify risks
+  - explain trends
+  - recommend growth actions
+  - improve conversion
+  - help with strategic decisions
 
-RULES:
-- Be practical, direct, and concise.
-- Keep responses under 120 words unless the user explicitly asks for detail.
-- Prefer bullet points over paragraphs.
-- Give maximum 3 recommendations.
-- Use numbers only when important.
-- Avoid generic advice.
-- Focus on actionable business outcomes.
-- Match the depth of the user's question.
-- For greetings or simple questions, reply briefly.
-- Think like a senior ecommerce consultant.
-- Never reveal chain-of-thought reasoning.
-- Never output <think> tags.
-- Never explain your internal thinking process.
-- Only provide the final answer.
+  RULES:
+  - Be practical, direct, and concise.
+  - Keep responses under 120 words unless the user explicitly asks for detail.
+  - Prefer bullet points over paragraphs.
+  - Give maximum 3 recommendations.
+  - Use numbers only when important.
+  - Avoid generic advice.
+  - Focus on actionable business outcomes.
+  - Match the depth of the user's question.
+  - For greetings or simple questions, reply briefly.
+  - Think like a senior ecommerce consultant.
+  - Never reveal chain-of-thought reasoning.
+  - Never output <think> tags.
+  - Never explain your internal thinking process.
+  - Only provide the final answer.
 
 
-FORMAT RULES:
-- Use proper markdown.
-- Use REAL markdown tables.
-- Use headings and bullet points.
-- Keep responses visually clean.
-- Prefer short sections over long paragraphs.
+  FORMAT RULES:
+  - Use proper markdown.
+  - Use REAL markdown tables.
+  - Use headings and bullet points.
+  - Keep responses visually clean.
+  - Prefer short sections over long paragraphs.
 
-STORE ANALYTICS:
-${JSON.stringify(businessContext)}
-            `,
+  STORE ANALYTICS:
+  ${JSON.stringify(businessContext)}
+              `,
           },
 
           {
@@ -213,90 +219,122 @@ app.post("/analyze", async (req, res) => {
 
     const completion =
       await client.chat.completions.create({
-        model: "openai/gpt-oss-120b",
+        // model: "openai/gpt-oss-120b",
+        model: "llama-3.3-70b-versatile",
 
-        temperature: 0.3,
+        temperature: 0.2,
 
 
 
-        max_tokens: 1400,
+        max_tokens: 900,
+        response_format: {
+          type: "json_object"
+        },
 
         messages: [
           {
             role: "system",
 
             content: `
-You are an ecommerce business intelligence engine.
+  You are an ecommerce business intelligence engine.
 
-Analyze the store analytics and return STRICT JSON.
-DO NOT write long paragraphs.
-Keep every field under 20 words.
-Return compact JSON only.
+  Analyze the store analytics and return STRICT JSON.
+  DO NOT write long paragraphs.
+  Keep every field under 20 words.
+  Maximum:
+  - 3 risks
+  - 3 opportunities
+  - 3 quickWins
+  - 3 aiAlerts
 
-DO NOT return markdown.
-DO NOT return explanations outside JSON.
+  Return compact JSON only.
 
-Return this structure EXACTLY:
+  DO NOT return markdown.
+  DO NOT return explanations outside JSON.
 
-{
-  "overview": {
-    "headline": "",
-    "summary": "",
-    "projection": "",
-    "priority": ""
-  },
+  Return this structure EXACTLY:
 
-  "risks": [
-    {
-      "title": "",
-      "severity": "high|medium|low",
-      "explanation": "",
-      "impact": ""
+  {
+    "overview": {
+      "headline": "",
+      "summary": "",
+      "projection": "",
+      "priority": ""
+    },
+
+    "risks": [
+      {
+        "title": "",
+        "severity": "high|medium|low",
+        "explanation": "",
+        "impact": ""
+      }
+    ],
+
+    "opportunities": [
+      {
+        "title": "",
+        "potential": "",
+        "action": ""
+      }
+    ],
+
+    "quickWins": [
+      {
+        "title": "",
+        "impact": "",
+        "action": ""
+      }
+    ],
+
+    "aiAlerts": [
+      {
+        "title": "",
+        "description": "",
+        "severity": "high|medium|low"
+      }
+    ],
+
+    "strategy": {
+      "focus": "",
+      "recommendation": "",
+      "expectedOutcome": ""
     }
-  ],
-
-  "opportunities": [
-    {
-      "title": "",
-      "potential": "",
-      "action": ""
-    }
-  ],
-
-  "quickWins": [
-    {
-      "title": "",
-      "impact": "",
-      "action": ""
-    }
-  ],
-
-  "aiAlerts": [
-    {
-      "title": "",
-      "description": "",
-      "severity": "high|medium|low"
-    }
-  ],
-
-  "strategy": {
-    "focus": "",
-    "recommendation": "",
-    "expectedOutcome": ""
   }
-}
 
-Use the actual analytics data.
+  Use the actual analytics data.
 
-STORE DATA:
-${JSON.stringify(businessContext)}
-            `,
+  STORE DATA:
+${JSON.stringify({
+              healthScore: businessContext.healthScore,
+              trendPct: businessContext.trendPct,
+              totalRevenue: businessContext.totalRevenue,
+              avgBuyRate: businessContext.avgBuyRate,
+              bestDay: businessContext.bestDay,
+              topProducts: businessContext.topProducts?.slice(0, 5),
+              weakProducts: businessContext.weakProducts?.slice(0, 3),
+              alerts: businessContext.alerts?.slice(0, 3)
+            })}
+              `,
           },
         ],
       });
 
     let raw =
       completion.choices[0].message.content;
+
+    console.log("\n========== FINISH REASON ==========\n");
+
+    console.log(
+      completion.choices[0].finish_reason
+    );
+
+    console.log("\n===================================\n");
+
+    console.log(
+      "RAW LENGTH:",
+      raw.length
+    );
 
     console.log("\n========== RAW AI RESPONSE ==========\n");
 
