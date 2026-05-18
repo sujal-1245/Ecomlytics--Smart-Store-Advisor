@@ -1986,6 +1986,7 @@ const Dashboard = ({ data, fileName, onReset }) => {
   const [tab, setTab] = useState("overview");
   const [aiInsights, setAiInsights] = useState(null);
   const [mlForecast, setMlForecast] = useState(null);
+  const [mlAnomalies, setMlAnomalies] = useState(null);
   const [aiLoading, setAiLoading] = useState(true);
   const [assistantMsgs, setAssistantMsgs] = useState([
     {
@@ -1999,9 +2000,16 @@ Ask me anything about your store performance, products, risks, growth opportunit
   const [assistantLoading, setAssistantLoading] = useState(false);
 
   useEffect(() => {
+
     const generateAIInsights = async () => {
+
+      setAiLoading(true);
+
+      const revenue = data.daily.map(
+        d => d.revenue
+      );
+
       try {
-        setAiLoading(true);
 
         const res = await fetch("http://localhost:5000/analyze", {
           method: "POST",
@@ -2018,9 +2026,7 @@ Ask me anything about your store performance, products, risks, growth opportunit
         const result = await res.json();
 
         setAiInsights(result);
-        const revenue = data.daily.map(
-          d => d.revenue
-        );
+
 
         const forecastRes = await fetch(
           "http://localhost:5000/forecast",
@@ -2041,14 +2047,38 @@ Ask me anything about your store performance, products, risks, growth opportunit
           await forecastRes.json();
 
         setMlForecast(forecastData);
-      } catch (err) {
-        console.error(err);
-      }
+        const anomalyRes = await fetch(
+          "http://localhost:5000/anomalies",
+          {
+            method: "POST",
 
-      setAiLoading(false);
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              revenue,
+            }),
+          }
+        );
+
+        const anomalyData =
+          await anomalyRes.json();
+
+        setMlAnomalies(anomalyData);
+
+      } catch (err) {
+
+        console.error(err);
+
+      } finally {
+
+        setAiLoading(false);
+      }
     };
 
     generateAIInsights();
+
   }, [data]);
 
   const {
@@ -2057,7 +2087,7 @@ Ask me anything about your store performance, products, risks, growth opportunit
     categories,
     monthly,
     dow,
-    unusualSet,
+    // unusualSet,
     totalRev,
     trendPct,
     recentAvg,
@@ -2071,40 +2101,72 @@ Ask me anything about your store performance, products, risks, growth opportunit
     meta,
   } = data;
 
+  const unusualDays = mlAnomalies?.anomalies
+    ? mlAnomalies.anomalies.map(
+      a => daily[a.index]?.date
+    ).filter(Boolean)
+    : data.fallbackUnusualDays;
+
+  const unusualSet =
+    new Set(unusualDays);
+
   const lastDate = new Date(daily[daily.length - 1]?.date || Date.now());
-  const fcChart =
+  const fcChart = (
+
     mlForecast?.forecast
+
       ? mlForecast.forecast
-        .slice(0, 14)
-        .map((v, i) => {
 
-          const d = new Date(lastDate);
+      : forecast.base
 
-          d.setDate(
-            d.getDate() + i + 1
-          );
+  ).slice(0, 14).map((v, i) => {
 
-          return {
+    const d = new Date(lastDate);
 
-            date:
-              `${d.getMonth() + 1}/${d.getDate()}`,
+    d.setDate(
+      d.getDate() + i + 1
+    );
 
-            predicted:
-              Math.round(v / 1000),
+    return {
 
-            optimistic:
-              Math.round(
-                mlForecast.upper_bound[i] / 1000
-              ),
+      date:
+        `${d.getMonth() + 1}/${d.getDate()}`,
 
-            pessimistic:
-              Math.round(
-                mlForecast.lower_bound[i] / 1000
-              ),
-          };
-        })
+      predicted:
+        Math.round(v / 1000),
 
-      : [];
+      optimistic:
+
+        mlForecast?.upper_bound
+
+          ? Math.max(
+            0,
+            Math.round(
+              mlForecast.upper_bound[i]
+              / 1000
+            )
+          )
+
+          : Math.round(v * 1.15 / 1000),
+
+      pessimistic:
+
+        mlForecast?.lower_bound
+
+          ? Math.max(
+            0,
+            Math.round(
+              mlForecast.lower_bound[i]
+              / 1000
+            )
+          )
+
+          : Math.max(
+            0,
+            Math.round(v * 0.85 / 1000)
+          )
+    };
+  });
   const chartData = daily.map((d) => ({
     date: d.date.slice(5),
     earnings: Math.round(d.revenue / 1000),
@@ -2910,50 +2972,53 @@ Ask me anything about your store performance, products, risks, growth opportunit
                   <Area
                     type="monotone"
                     dataKey="optimistic"
-                    fill="#dcfce7"
+                    fill="#8b5cf6"
                     stroke="none"
-                    fillOpacity={0.5}
+                    fillOpacity={0.18}
                   />
+
                   <Area
                     type="monotone"
                     dataKey="pessimistic"
-                    fill="#fef9c3"
+                    fill="#ef4444"
                     stroke="none"
-                    fillOpacity={0.5}
+                    fillOpacity={0.12}
                   />
+
                   <Line
                     type="monotone"
                     dataKey="earnings"
-                    stroke="#6366f1"
+                    stroke="#111827"
+                    strokeWidth={3}
                     dot={(p) => {
                       const { cx, cy, payload } = p;
+
                       const full = daily.find(
                         (d) => d.date.slice(5) === payload.date,
                       );
+
                       return unusualSet.has(full?.date) ? (
                         <circle
                           key={cx}
                           cx={cx}
                           cy={cy}
-                          r={5}
-                          fill="#f59e0b"
+                          r={6}
+                          fill="#f97316"
                           stroke="#fff"
-                          strokeWidth={1}
+                          strokeWidth={2}
                         />
-                      ) : (
-                        <circle key={cx} cx={cx} cy={cy} r={0} />
-                      );
+                      ) : null;
                     }}
-                    strokeWidth={2}
                     name="earnings"
                   />
+
                   <Line
                     type="monotone"
                     dataKey="predicted"
-                    stroke="#8b5cf6"
+                    stroke="#4f46e5"
                     dot={false}
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
+                    strokeWidth={3}
+                    strokeDasharray="6 4"
                     name="predicted"
                   />
                 </AreaChart>

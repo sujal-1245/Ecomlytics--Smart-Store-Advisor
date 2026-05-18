@@ -1,17 +1,39 @@
-export const fetchForecast = async (data) => {
+export const fetchForecast = async (daily) => {
 
-  const res = await fetch(
-    "http://localhost:5000/forecast",
-    {
-      method: "POST",
+  try {
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+    const res = await fetch(
+      "http://localhost:5000/forecast",
+      {
 
-      body: JSON.stringify(data)
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          daily
+        })
+      }
+    );
+
+    if (!res.ok) {
+
+      throw new Error(
+        "Forecast request failed"
+      );
     }
-  );
 
-  return await res.json();
+    return await res.json();
+
+  } catch (err) {
+
+    console.error(
+      "ML Forecast Error:",
+      err
+    );
+
+    return null;
+  }
 };
