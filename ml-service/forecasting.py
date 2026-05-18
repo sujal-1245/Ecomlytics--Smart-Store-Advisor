@@ -100,7 +100,7 @@ def generate_forecast(revenue):
 
             print(f"MAE: {round(mae,2)}")
             print(f"RMSE: {round(rmse,2)}")
-            print(f"MAPE: {round(mape,2)}%")
+            print(f"MAPE: {float(round(mape,2))}%")
 
         else:
 
@@ -136,7 +136,7 @@ def generate_forecast(revenue):
                     if rmse is not None else None,
 
                 "MAPE":
-                    round(mape,2)
+                    float(round(mape,2))
                     if mape is not None else None
             }
         }

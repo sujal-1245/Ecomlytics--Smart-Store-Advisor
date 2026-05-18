@@ -4,9 +4,9 @@ from clustering import cluster_products
 
 import random
 
-# ─────────────────────────────
+# ─────────────────────────────────────────────
 # SAMPLE REVENUE
-# ─────────────────────────────
+# ─────────────────────────────────────────────
 
 revenue = [
 
@@ -15,17 +15,23 @@ revenue = [
     for _ in range(90)
 ]
 
-# ─────────────────────────────
+# ─────────────────────────────────────────────
 # SAMPLE PRODUCTS
-# ─────────────────────────────
+# ─────────────────────────────────────────────
 
 products = []
 
 for i in range(30):
 
-    views = random.randint(500, 5000)
+    views = random.randint(
+        500,
+        5000
+    )
 
-    orders = random.randint(10, 300)
+    orders = random.randint(
+        10,
+        300
+    )
 
     revenue_value = random.randint(
         5000,
@@ -47,42 +53,102 @@ for i in range(30):
             views,
 
         "conversion_rate":
-            (orders / views) * 100,
+            round(
+                (orders / views) * 100,
+                2
+            ),
 
         "avg_order_value":
-            revenue_value / orders
+            round(
+                revenue_value / orders,
+                2
+            )
     })
 
-# ─────────────────────────────
-# RUN EVERYTHING
-# ─────────────────────────────
+# ─────────────────────────────────────────────
+# RUN FORECASTING
+# ─────────────────────────────────────────────
 
 print(
-    "\n===== TESTING FORECAST ====="
+    "\n===================================="
 )
 
-forecast =
-    generate_forecast(revenue)
+print(
+    "TESTING FORECAST MODEL"
+)
+
+print(
+    "====================================\n"
+)
+
+forecast = generate_forecast(
+    revenue
+)
+
+print("\nFORECAST OUTPUT:\n")
 
 print(forecast)
 
+# ─────────────────────────────────────────────
+# RUN ANOMALY DETECTION
+# ─────────────────────────────────────────────
+
 print(
-    "\n===== TESTING ANOMALIES ====="
+    "\n===================================="
 )
 
-anomalies =
-    detect_anomalies(revenue)
+print(
+    "TESTING ANOMALY DETECTION"
+)
+
+print(
+    "====================================\n"
+)
+
+anomalies = detect_anomalies(
+    revenue
+)
+
+print("\nANOMALY OUTPUT:\n")
 
 print(anomalies)
 
+# ─────────────────────────────────────────────
+# RUN CLUSTERING
+# ─────────────────────────────────────────────
+
 print(
-    "\n===== TESTING CLUSTERING ====="
+    "\n===================================="
 )
 
-clusters = cluster_products(products)
+print(
+    "TESTING PRODUCT CLUSTERING"
+)
+
+print(
+    "====================================\n"
+)
+
+clusters = cluster_products(
+    products
+)
+
+print("\nCLUSTER OUTPUT:\n")
 
 print(clusters)
 
+# ─────────────────────────────────────────────
+# FINISHED
+# ─────────────────────────────────────────────
+
 print(
-    "\n===== ALL ML TESTS COMPLETE =====\n"
+    "\n===================================="
+)
+
+print(
+    "ALL ML TESTS COMPLETE"
+)
+
+print(
+    "====================================\n"
 )
