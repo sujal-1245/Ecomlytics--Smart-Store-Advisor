@@ -1,0 +1,11 @@
+# Ecomlytics Backend Requirements
+# All ML models are built from scratch using Python standard library only
+# No external ML libraries needed
+
+# Optional: if you want to run with FastAPI backend
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# Note: data_generator.py, ml_engine.py, insight_engine.py
+# use ONLY Python built-in modules (json, math, random, datetime)
+# so you can run them with just Python 3.8+

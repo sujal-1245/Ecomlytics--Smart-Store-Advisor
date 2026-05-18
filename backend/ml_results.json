@@ -1,0 +1,499 @@
+{
+  "forecasting": {
+    "model_comparison": {
+      "linear_regression": {
+        "test_mae": 740287.35,
+        "test_rmse": 841920.14,
+        "description": "OLS regression fitting a straight trend line through revenue history"
+      },
+      "arima_like": {
+        "test_mae": 763219.64,
+        "test_rmse": 807690.76,
+        "description": "AR(3) + moving average hybrid capturing momentum and local patterns"
+      },
+      "best_model": "ARIMA-like",
+      "justification": "ARIMA-like achieves lower RMSE (807691 vs 841920), indicating better fit to non-linear seasonal patterns"
+    },
+    "forecast_30_days": [
+      774129.42,
+      735275.18,
+      688000.72,
+      601890.37,
+      561720.97,
+      516994.33,
+      481194.5,
+      393072.14,
+      368895.57,
+      331989.48,
+      310867.1,
+      243148.35,
+      249215.09,
+      179728.73,
+      126206.14,
+      144309.78,
+      117421.78,
+      138651.76,
+      119489.0,
+      65371.85,
+      94357.11,
+      45387.58,
+      57780.99,
+      45453.66,
+      47584.15,
+      53358.49,
+      43702.61,
+      35701.3,
+      34169.64,
+      29790.08
+    ],
+    "trend_pct_2weeks": -16.84,
+    "do_nothing_impact": {
+      "projected_monthly_change_pct": -33.68,
+      "message": "If current trend continues, revenue may drop ~33.7% next month"
+    }
+  },
+  "anomaly_detection": {
+    "anomalies": [
+      {
+        "date": "2026-03-21",
+        "revenue": 8849391.66,
+        "type": "spike",
+        "if_score": 0.7838,
+        "z_score": 7.6525,
+        "detected_by_isolation_forest": true,
+        "detected_by_zscore": true,
+        "agreed": true
+      },
+      {
+        "date": "2026-03-22",
+        "revenue": 4454361.11,
+        "type": "spike",
+        "if_score": 0.7308,
+        "z_score": 3.0709,
+        "detected_by_isolation_forest": true,
+        "detected_by_zscore": true,
+        "agreed": true
+      },
+      {
+        "date": "2026-03-23",
+        "revenue": 4008558.19,
+        "type": "spike",
+        "if_score": 0.7289,
+        "z_score": 2.6062,
+        "detected_by_isolation_forest": true,
+        "detected_by_zscore": true,
+        "agreed": true
+      },
+      {
+        "date": "2026-04-22",
+        "revenue": 117636.59,
+        "type": "drop",
+        "if_score": 0.7116,
+        "z_score": -1.4499,
+        "detected_by_isolation_forest": true,
+        "detected_by_zscore": false,
+        "agreed": false
+      },
+      {
+        "date": "2026-04-21",
+        "revenue": 160502.08,
+        "type": "drop",
+        "if_score": 0.7043,
+        "z_score": -1.4052,
+        "detected_by_isolation_forest": true,
+        "detected_by_zscore": false,
+        "agreed": false
+      }
+    ],
+    "model_comparison": {
+      "isolation_forest": {
+        "flagged": 5,
+        "description": "Tree-based unsupervised method; isolates outliers by average path length"
+      },
+      "z_score": {
+        "flagged": 3,
+        "description": "Statistical method; flags points beyond 2.5 standard deviations"
+      },
+      "agreement_rate": 60.0,
+      "note": "Points flagged by both methods are highest confidence anomalies"
+    }
+  },
+  "segmentation": {
+    "segmented_products": [
+      {
+        "product": "Smart Watch",
+        "category": "Electronics",
+        "revenue": 27396710.17,
+        "orders": 5501,
+        "views": 78542,
+        "price": 4999,
+        "conversion_rate": 7.0039,
+        "cluster": 2,
+        "segment": "Cash Cow"
+      },
+      {
+        "product": "Running Shoes",
+        "category": "Clothing",
+        "revenue": 23054017.17,
+        "orders": 6588,
+        "views": 89519,
+        "price": 3499,
+        "conversion_rate": 7.3593,
+        "cluster": 2,
+        "segment": "Cash Cow"
+      },
+      {
+        "product": "Air Fryer",
+        "category": "Home & Kitchen",
+        "revenue": 18888720.41,
+        "orders": 4743,
+        "views": 64995,
+        "price": 3999,
+        "conversion_rate": 7.2975,
+        "cluster": 2,
+        "segment": "Cash Cow"
+      },
+      {
+        "product": "Wireless Earbuds",
+        "category": "Electronics",
+        "revenue": 14365850.28,
+        "orders": 5758,
+        "views": 80982,
+        "price": 2499,
+        "conversion_rate": 7.1102,
+        "cluster": 2,
+        "segment": "Cash Cow"
+      },
+      {
+        "product": "Coffee Maker",
+        "category": "Home & Kitchen",
+        "revenue": 7299899.83,
+        "orders": 2592,
+        "views": 33212,
+        "price": 2799,
+        "conversion_rate": 7.8044,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Denim Jacket",
+        "category": "Clothing",
+        "revenue": 7149732.52,
+        "orders": 3249,
+        "views": 46682,
+        "price": 2199,
+        "conversion_rate": 6.9599,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Webcam",
+        "category": "Electronics",
+        "revenue": 4254582.36,
+        "orders": 2838,
+        "views": 38938,
+        "price": 1499,
+        "conversion_rate": 7.2885,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Hoodie",
+        "category": "Clothing",
+        "revenue": 3415683.77,
+        "orders": 2146,
+        "views": 30174,
+        "price": 1599,
+        "conversion_rate": 7.1121,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Blender",
+        "category": "Home & Kitchen",
+        "revenue": 3352606.18,
+        "orders": 1530,
+        "views": 24036,
+        "price": 2199,
+        "conversion_rate": 6.3655,
+        "cluster": 1,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Bluetooth Speaker",
+        "category": "Electronics",
+        "revenue": 2816911.14,
+        "orders": 1477,
+        "views": 20784,
+        "price": 1899,
+        "conversion_rate": 7.1064,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Lipstick Set",
+        "category": "Beauty",
+        "revenue": 2430069.17,
+        "orders": 3075,
+        "views": 43299,
+        "price": 799,
+        "conversion_rate": 7.1018,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Face Serum",
+        "category": "Beauty",
+        "revenue": 2341549.57,
+        "orders": 2607,
+        "views": 35010,
+        "price": 899,
+        "conversion_rate": 7.4464,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Summer Dress",
+        "category": "Clothing",
+        "revenue": 2316483.84,
+        "orders": 1790,
+        "views": 23414,
+        "price": 1299,
+        "conversion_rate": 7.645,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Knife Set",
+        "category": "Home & Kitchen",
+        "revenue": 2084198.1,
+        "orders": 1386,
+        "views": 19755,
+        "price": 1499,
+        "conversion_rate": 7.0159,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Foam Roller",
+        "category": "Sports",
+        "revenue": 1842031.27,
+        "orders": 2635,
+        "views": 39336,
+        "price": 699,
+        "conversion_rate": 6.6987,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Resistance Bands",
+        "category": "Sports",
+        "revenue": 1595683.69,
+        "orders": 3201,
+        "views": 43226,
+        "price": 499,
+        "conversion_rate": 7.4053,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Yoga Pants",
+        "category": "Clothing",
+        "revenue": 1398449.23,
+        "orders": 1405,
+        "views": 20778,
+        "price": 999,
+        "conversion_rate": 6.762,
+        "cluster": 1,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Zero to One",
+        "category": "Books",
+        "revenue": 1265404.75,
+        "orders": 3323,
+        "views": 44166,
+        "price": 379,
+        "conversion_rate": 7.5239,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Gym Gloves",
+        "category": "Sports",
+        "revenue": 1248492.8,
+        "orders": 3562,
+        "views": 47556,
+        "price": 349,
+        "conversion_rate": 7.4901,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Python Cookbook",
+        "category": "Books",
+        "revenue": 1242867.06,
+        "orders": 2070,
+        "views": 27434,
+        "price": 599,
+        "conversion_rate": 7.5454,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "The Lean Startup",
+        "category": "Books",
+        "revenue": 989667.95,
+        "orders": 2746,
+        "views": 38742,
+        "price": 359,
+        "conversion_rate": 7.0879,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Hair Mask",
+        "category": "Beauty",
+        "revenue": 908626.92,
+        "orders": 1809,
+        "views": 23188,
+        "price": 499,
+        "conversion_rate": 7.8014,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Water Bottle",
+        "category": "Sports",
+        "revenue": 854860.16,
+        "orders": 2139,
+        "views": 27242,
+        "price": 399,
+        "conversion_rate": 7.8518,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Sunscreen SPF50",
+        "category": "Beauty",
+        "revenue": 805694.28,
+        "orders": 2300,
+        "views": 34706,
+        "price": 349,
+        "conversion_rate": 6.6271,
+        "cluster": 1,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Atomic Habits",
+        "category": "Books",
+        "revenue": 635353.2,
+        "orders": 1580,
+        "views": 21117,
+        "price": 399,
+        "conversion_rate": 7.4821,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Deep Work",
+        "category": "Books",
+        "revenue": 554435.46,
+        "orders": 1591,
+        "views": 23013,
+        "price": 349,
+        "conversion_rate": 6.9135,
+        "cluster": 3,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Storage Bins",
+        "category": "Home & Kitchen",
+        "revenue": 507638.52,
+        "orders": 732,
+        "views": 9954,
+        "price": 699,
+        "conversion_rate": 7.3538,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "USB Hub",
+        "category": "Electronics",
+        "revenue": 361538.73,
+        "orders": 454,
+        "views": 6940,
+        "price": 799,
+        "conversion_rate": 6.5418,
+        "cluster": 1,
+        "segment": "Underperformer"
+      },
+      {
+        "product": "Eye Cream",
+        "category": "Beauty",
+        "revenue": 249827.33,
+        "orders": 386,
+        "views": 4975,
+        "price": 649,
+        "conversion_rate": 7.7588,
+        "cluster": 0,
+        "segment": "Rising Star"
+      },
+      {
+        "product": "Jump Rope",
+        "category": "Sports",
+        "revenue": 138817.83,
+        "orders": 463,
+        "views": 7110,
+        "price": 299,
+        "conversion_rate": 6.512,
+        "cluster": 1,
+        "segment": "Underperformer"
+      }
+    ],
+    "elbow_data": [
+      {
+        "k": 2,
+        "inertia": 3.041
+      },
+      {
+        "k": 3,
+        "inertia": 1.5174
+      },
+      {
+        "k": 4,
+        "inertia": 1.0551
+      },
+      {
+        "k": 5,
+        "inertia": 0.9462
+      },
+      {
+        "k": 6,
+        "inertia": 0.8628
+      }
+    ],
+    "optimal_k": 4,
+    "silhouette_score": 0.3803,
+    "cluster_profiles": {
+      "Rising Star": {
+        "avg_revenue": 1705557.31,
+        "avg_conversion_rate": 7.5924,
+        "avg_views": 28374,
+        "count": 12
+      },
+      "Underperformer": {
+        "avg_revenue": 2837479.08,
+        "avg_conversion_rate": 7.0316,
+        "avg_views": 33414,
+        "count": 9
+      },
+      "Cash Cow": {
+        "avg_revenue": 20926324.51,
+        "avg_conversion_rate": 7.1927,
+        "avg_views": 78510,
+        "count": 4
+      }
+    }
+  }
+}

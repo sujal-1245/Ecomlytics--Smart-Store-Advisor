@@ -1,0 +1,293 @@
+{
+  "insights": [
+    {
+      "id": "revenue_trend",
+      "type": "trend",
+      "severity": "critical",
+      "title": "Revenue is declining 16.8% over last 2 weeks",
+      "detail": "If current trend continues, revenue may drop ~33.7% next month",
+      "metric": -16.84,
+      "category": "Revenue"
+    },
+    {
+      "id": "anomaly_drop",
+      "type": "anomaly",
+      "severity": "critical",
+      "title": "Abnormal revenue drop detected on 2026-03-25",
+      "detail": "Revenue fell to \u20b9117,637 \u2014 significantly below normal. Both Isolation Forest and Z-score models flagged this.",
+      "date": "2026-03-25",
+      "category": "Anomaly"
+    },
+    {
+      "id": "pareto_rule",
+      "type": "concentration",
+      "severity": "warning",
+      "title": "Top 6 products drive 72.3% of revenue",
+      "detail": "Smart Watch and Running Shoes alone account for the majority of sales. High concentration risk.",
+      "metric": 72.3,
+      "products": [
+        "Smart Watch",
+        "Running Shoes",
+        "Air Fryer",
+        "Wireless Earbuds",
+        "Coffee Maker",
+        "Denim Jacket"
+      ],
+      "category": "Product Risk"
+    },
+    {
+      "id": "category_conversion",
+      "type": "performance",
+      "severity": "warning",
+      "title": "Electronics has the lowest conversion rate (7.09%)",
+      "detail": "Compared to Books at 7.32%, Electronics is significantly underperforming. Review pricing and product listings.",
+      "category": "Category"
+    },
+    {
+      "id": "ml_underperformers",
+      "type": "risk",
+      "severity": "warning",
+      "title": "14 products identified as underperformers by ML clustering",
+      "detail": "K-Means segmentation identified Denim Jacket, Webcam, Hoodie as low-revenue, low-conversion products. Consider discontinuing or promoting.",
+      "products": [
+        "Denim Jacket",
+        "Webcam",
+        "Hoodie",
+        "Blender",
+        "Bluetooth Speaker",
+        "Lipstick Set",
+        "Knife Set",
+        "Foam Roller",
+        "Yoga Pants",
+        "The Lean Startup",
+        "Sunscreen SPF50",
+        "Deep Work",
+        "USB Hub",
+        "Jump Rope"
+      ],
+      "category": "ML Insight"
+    }
+  ],
+  "rca": {
+    "summary": {
+      "revenue_change_pct": 2.2,
+      "narrative": "Sales grew 2.2% with the strongest contribution from Electronics and Smart Watch in the last 14 days."
+    },
+    "category_impacts": [
+      {
+        "category": "Beauty",
+        "recent_revenue": 733066.36,
+        "prior_revenue": 928588.28,
+        "change_pct": -21.1
+      },
+      {
+        "category": "Clothing",
+        "recent_revenue": 4156488.58,
+        "prior_revenue": 5014432.36,
+        "change_pct": -17.1
+      },
+      {
+        "category": "Books",
+        "recent_revenue": 508596.98,
+        "prior_revenue": 594454.33,
+        "change_pct": -14.4
+      },
+      {
+        "category": "Sports",
+        "recent_revenue": 634730.07,
+        "prior_revenue": 706807.84,
+        "change_pct": -10.2
+      },
+      {
+        "category": "Home & Kitchen",
+        "recent_revenue": 3831736.11,
+        "prior_revenue": 3501959.34,
+        "change_pct": 9.4
+      },
+      {
+        "category": "Electronics",
+        "recent_revenue": 6261312.33,
+        "prior_revenue": 5025225.18,
+        "change_pct": 24.6
+      }
+    ],
+    "product_contributors": [
+      {
+        "product": "Face Serum",
+        "category": "Beauty",
+        "recent_revenue": 229020.69,
+        "prior_revenue": 374187.53,
+        "change_pct": -38.8
+      },
+      {
+        "product": "Water Bottle",
+        "category": "Sports",
+        "recent_revenue": 74829.6,
+        "prior_revenue": 107716.68,
+        "change_pct": -30.5
+      },
+      {
+        "product": "Deep Work",
+        "category": "Books",
+        "recent_revenue": 47999.65,
+        "prior_revenue": 68263.47,
+        "change_pct": -29.7
+      },
+      {
+        "product": "Gym Gloves",
+        "category": "Sports",
+        "recent_revenue": 137088.7,
+        "prior_revenue": 191973.86,
+        "change_pct": -28.6
+      },
+      {
+        "product": "Yoga Pants",
+        "category": "Clothing",
+        "recent_revenue": 122671.03,
+        "prior_revenue": 163404.04,
+        "change_pct": -24.9
+      },
+      {
+        "product": "Python Cookbook",
+        "category": "Books",
+        "recent_revenue": 119395.7,
+        "prior_revenue": 158689.01,
+        "change_pct": -24.8
+      },
+      {
+        "product": "Denim Jacket",
+        "category": "Clothing",
+        "recent_revenue": 911402.23,
+        "prior_revenue": 1144322.27,
+        "change_pct": -20.4
+      },
+      {
+        "product": "Running Shoes",
+        "category": "Clothing",
+        "recent_revenue": 2483652.92,
+        "prior_revenue": 2997060.52,
+        "change_pct": -17.1
+      },
+      {
+        "product": "The Lean Startup",
+        "category": "Books",
+        "recent_revenue": 106424.34,
+        "prior_revenue": 127782.04,
+        "change_pct": -16.7
+      },
+      {
+        "product": "Lipstick Set",
+        "category": "Beauty",
+        "recent_revenue": 262442.01,
+        "prior_revenue": 306919.63,
+        "change_pct": -14.5
+      }
+    ],
+    "time_window": "last 14 days vs prior 14 days"
+  },
+  "recommendations": [
+    {
+      "id": "rec_trend_intervention",
+      "linked_insight": "revenue_trend",
+      "action": "Launch a targeted promotional campaign immediately",
+      "targets": [],
+      "rationale": "Revenue has declined 16.8% \u2014 passive monitoring will allow compounding decline.",
+      "priority": "critical",
+      "expected_impact": "Arrest decline; stabilize revenue within 7 days",
+      "type": "promotion"
+    },
+    {
+      "id": "rec_diversify",
+      "linked_insight": "pareto_rule",
+      "action": "Diversify product portfolio to reduce concentration risk",
+      "targets": [
+        "Smart Watch",
+        "Running Shoes"
+      ],
+      "rationale": "Over-reliance on a few products creates fragility. One product issue can tank overall performance.",
+      "priority": "medium",
+      "expected_impact": "Reduced business risk score",
+      "type": "strategy"
+    },
+    {
+      "id": "rec_remove_underperformers",
+      "linked_insight": "ml_underperformers",
+      "action": "Review and consider removing underperforming SKUs",
+      "targets": [
+        "Denim Jacket",
+        "Webcam",
+        "Hoodie"
+      ],
+      "rationale": "Low revenue and low conversion \u2014 these products consume listing real estate without contributing meaningfully.",
+      "priority": "medium",
+      "expected_impact": "Cleaner catalog, improved average metrics",
+      "type": "catalog"
+    }
+  ],
+  "decision_score": {
+    "total": 51,
+    "status": "At Risk",
+    "components": {
+      "revenue_trend": 3,
+      "conversion_rate": 25,
+      "concentration_risk": 18,
+      "anomaly_health": 5
+    },
+    "explanation": "Business Health Score: 51/100 \u2014 At Risk. Driven by declining revenue trend (-16.8%), multiple anomalies detected",
+    "max_possible": 100
+  },
+  "copilot_demo": {
+    "query": "Why are my sales dropping?",
+    "insights": [
+      {
+        "id": "revenue_trend",
+        "type": "trend",
+        "severity": "critical",
+        "title": "Revenue is declining 16.8% over last 2 weeks",
+        "detail": "If current trend continues, revenue may drop ~33.7% next month",
+        "metric": -16.84,
+        "category": "Revenue"
+      },
+      {
+        "id": "anomaly_drop",
+        "type": "anomaly",
+        "severity": "critical",
+        "title": "Abnormal revenue drop detected on 2026-03-25",
+        "detail": "Revenue fell to \u20b9117,637 \u2014 significantly below normal. Both Isolation Forest and Z-score models flagged this.",
+        "date": "2026-03-25",
+        "category": "Anomaly"
+      },
+      {
+        "id": "pareto_rule",
+        "type": "concentration",
+        "severity": "warning",
+        "title": "Top 6 products drive 72.3% of revenue",
+        "detail": "Smart Watch and Running Shoes alone account for the majority of sales. High concentration risk.",
+        "metric": 72.3,
+        "products": [
+          "Smart Watch",
+          "Running Shoes",
+          "Air Fryer",
+          "Wireless Earbuds",
+          "Coffee Maker",
+          "Denim Jacket"
+        ],
+        "category": "Product Risk"
+      }
+    ],
+    "root_cause": "Sales grew 2.2% with the strongest contribution from Electronics and Smart Watch in the last 14 days.",
+    "recommendations": [
+      {
+        "id": "rec_trend_intervention",
+        "linked_insight": "revenue_trend",
+        "action": "Launch a targeted promotional campaign immediately",
+        "targets": [],
+        "rationale": "Revenue has declined 16.8% \u2014 passive monitoring will allow compounding decline.",
+        "priority": "critical",
+        "expected_impact": "Arrest decline; stabilize revenue within 7 days",
+        "type": "promotion"
+      }
+    ],
+    "summary": "Your revenue has +2.2% change over 2 weeks. Sales grew 2.2% with the strongest contribution from Electronics and Smart Watch in the last 14 days."
+  }
+}
