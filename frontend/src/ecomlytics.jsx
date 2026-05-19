@@ -1,7 +1,22 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { motion } from "framer-motion";
+import Lottie from "lottie-react";
 
+import aiAnimation from "./lottie/ai.json";
+import {
+  FiUploadCloud,
+  FiBarChart2,
+  FiCpu,
+  FiCheckCircle,
+} from "react-icons/fi";
+
+import {
+  HiSparkles,
+} from "react-icons/hi";
+import Tilt from "react-parallax-tilt";
+import CountUp from "react-countup";
 import {
   LineChart,
   Line,
@@ -494,554 +509,985 @@ function analyseData(rows) {
   };
 }
 
-// ─── UPLOAD SCREEN ────────────────────────────────────────────────────────────
 const UploadScreen = ({ onData }) => {
+
   const [dragging, setDragging] = useState(false);
-  const [status, setStatus] = useState("idle"); // idle | loading | error | paste
+  const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [progress, setProgress] = useState(0);
   const [pasteText, setPasteText] = useState("");
+
   const inputRef = useRef(null);
 
   const processText = useCallback(
     (text, name) => {
+
       try {
+
         setStatus("loading");
+
         setProgress(20);
+
         const rows = parseCSV(text);
+
         setProgress(60);
-        if (rows.length < 3)
+
+        if (rows.length < 3) {
+
           throw new Error(
-            "Too few rows found. Make sure your data has at least a few days of sales.",
+            "Too few rows found in CSV."
           );
+        }
+
         const result = analyseData(rows);
+
         setProgress(100);
-        setTimeout(() => onData(result, name), 400);
+
+        setTimeout(() => {
+
+          onData(result, name);
+
+        }, 1200);
+
       } catch (err) {
+
         setStatus("error");
+
         setErrorMsg(
-          err.message || "Something went wrong. Please check your data format.",
+          err.message || "Failed to analyse data."
         );
       }
     },
-    [onData],
+
+    [onData]
   );
 
   const processFile = useCallback(
     (file) => {
+
       if (!file) return;
+
       if (!file.name.endsWith(".csv")) {
-        setErrorMsg("Please upload a CSV file (.csv)");
+
+        setErrorMsg(
+          "Please upload a valid CSV file."
+        );
+
         setStatus("error");
+
         return;
       }
+
       setStatus("loading");
+
       setProgress(0);
+
       setErrorMsg("");
-      // Try FileReader first
+
       try {
+
         const reader = new FileReader();
-        reader.onload = (e) => processText(e.target.result, file.name);
-        reader.onerror = () => {
-          // FileReader blocked (sandbox) — switch to paste mode
+
+        reader.onload = (e) =>
+          processText(e.target.result, file.name);
+
+        reader.onerror = () =>
           setStatus("paste");
-        };
+
         reader.readAsText(file);
-        setProgress(10);
-      } catch (e) {
+
+      } catch {
+
         setStatus("paste");
       }
     },
-    [processText],
+
+    [processText]
   );
 
   const onDrop = useCallback(
     (e) => {
+
       e.preventDefault();
+
       setDragging(false);
-      processFile(e.dataTransfer.files[0]);
+
+      processFile(
+        e.dataTransfer.files[0]
+      );
     },
-    [processFile],
+
+    [processFile]
   );
 
-  const onDragOver = (e) => {
-    e.preventDefault();
-    setDragging(true);
-  };
-  const onDragLeave = () => setDragging(false);
-
   const handlePasteSubmit = () => {
+
     if (!pasteText.trim()) {
-      setErrorMsg("Please paste some data first.");
+
+      setErrorMsg(
+        "Paste your CSV data first."
+      );
+
       return;
     }
-    setErrorMsg("");
-    processText(pasteText.trim(), "pasted_data.csv");
+
+    processText(
+      pasteText.trim(),
+      "pasted_data.csv"
+    );
   };
 
-  const COLS = [
-    "date",
-    "product",
-    "category",
-    "views (optional)",
-    "orders",
-    "revenue",
-    "price (optional)",
+  const loadingMessages = [
+
+    "Generating revenue predictions...",
+
+    "Detecting unusual sales patterns...",
+
+    "Running Isolation Forest analysis...",
+
+    "Clustering product performance...",
+
+    "Building AI business insights...",
+
+    "Optimizing recommendation engine...",
   ];
 
+  const [loadingIndex, setLoadingIndex] =
+    useState(0);
+
+  useEffect(() => {
+
+    if (status !== "loading") return;
+
+    const interval = setInterval(() => {
+
+      setLoadingIndex((prev) =>
+        (prev + 1) % loadingMessages.length
+      );
+
+    }, 1800);
+
+    return () => clearInterval(interval);
+
+  }, [status]);
+
   return (
+
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg,#f0f4ff 0%,#faf5ff 100%)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "32px 20px",
-        fontFamily: "'DM Sans','Segoe UI',sans-serif",
+        background:
+          "radial-gradient(circle at top left,#312e81,#0f172a 45%,#020617 100%)",
+        overflow: "hidden",
+        position: "relative",
+        color: "#fff",
+        fontFamily:
+          "'DM Sans','Segoe UI',sans-serif",
       }}
     >
-      {/* Logo */}
+
+      {/* Floating gradients */}
+
       <div
         style={{
-          display: "flex",
+          position: "absolute",
+          width: 500,
+          height: 500,
+          background:
+            "rgba(99,102,241,0.25)",
+          filter: "blur(120px)",
+          top: -120,
+          left: -120,
+          borderRadius: "50%",
+        }}
+      />
+
+      <div
+        style={{
+          position: "absolute",
+          width: 400,
+          height: 400,
+          background:
+            "rgba(139,92,246,0.18)",
+          filter: "blur(120px)",
+          bottom: -120,
+          right: -100,
+          borderRadius: "50%",
+        }}
+      />
+      {[...Array(18)].map((_, i) => (
+
+        <motion.div
+          key={i}
+
+          animate={{
+            y: [0, -30, 0],
+            opacity: [0.2, 0.8, 0.2],
+          }}
+
+          transition={{
+            duration: 4 + i,
+            repeat: Infinity,
+          }}
+
+          style={{
+            position: "absolute",
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background:
+              "rgba(139,92,246,0.6)",
+
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            filter: "blur(1px)",
+          }}
+        />
+      ))}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          display: "grid",
+          gridTemplateColumns:
+            "1.1fr 1fr",
+          minHeight: "100vh",
           alignItems: "center",
-          gap: 10,
-          marginBottom: 28,
+          padding: "60px",
+          gap: 50,
         }}
       >
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            background: "#6366f1",
-            borderRadius: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 800,
-            fontSize: 18,
+
+        {/* LEFT SIDE */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 40,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          transition={{
+            duration: 0.8,
           }}
         >
-          E
-        </div>
-        <div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>
-            Ecomlytics
-          </div>
-          <div style={{ fontSize: 11, color: "#9ca3af", marginTop: -2 }}>
-            Your Smart Store Advisor
-          </div>
-        </div>
-      </div>
 
-      {/* Headline */}
-      <div style={{ textAlign: "center", marginBottom: 28, maxWidth: 560 }}>
-        <div
-          style={{
-            fontSize: 26,
-            fontWeight: 800,
-            color: "#111827",
-            marginBottom: 8,
-            lineHeight: 1.3,
-          }}
-        >
-          Drop your sales data and get instant insights
-        </div>
-        <div style={{ fontSize: 14, color: "#6b7280", lineHeight: 1.6 }}>
-          No technical knowledge needed. Ecomlytics reads your store data and
-          tells you what's happening, why, and what to do next.
-        </div>
-      </div>
-
-      {/* ── LOADING ── */}
-      {status === "loading" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: 520,
-            background: "#fff",
-            border: "2px solid #6366f1",
-            borderRadius: 16,
-            padding: "40px 32px",
-            textAlign: "center",
-            marginBottom: 24,
-            boxShadow: "0 4px 24px rgba(99,102,241,0.08)",
-          }}
-        >
-          <div style={{ fontSize: 44, marginBottom: 14 }}>⚙️</div>
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: 16,
-              color: "#6366f1",
-              marginBottom: 16,
-            }}
-          >
-            Analysing your store data…
-          </div>
-          <div
-            style={{
-              background: "#e0e7ff",
-              borderRadius: 100,
-              height: 8,
-              overflow: "hidden",
-              marginBottom: 8,
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                background: "#6366f1",
-                borderRadius: 100,
-                width: `${progress}%`,
-                transition: "width 0.5s ease",
-              }}
-            />
-          </div>
-          <div style={{ fontSize: 12, color: "#9ca3af" }}>
-            {progress < 30
-              ? "Reading file…"
-              : progress < 60
-                ? "Crunching numbers…"
-                : progress < 90
-                  ? "Building insights…"
-                  : "Almost done!"}
-          </div>
-        </div>
-      )}
-
-      {/* ── IDLE — Drop zone ── */}
-      {(status === "idle" || status === "error") && (
-        <>
-          <div
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onClick={() => inputRef.current?.click()}
-            style={{
-              width: "100%",
-              maxWidth: 520,
-              border: `2px dashed ${dragging ? "#6366f1" : status === "error" ? "#ef4444" : "#c7d2fe"}`,
-              borderRadius: 16,
-              padding: "36px 32px",
-              textAlign: "center",
-              cursor: "pointer",
-              background: dragging
-                ? "#eef2ff"
-                : status === "error"
-                  ? "#fef2f2"
-                  : "#fff",
-              transition: "all 0.2s",
-              marginBottom: 12,
-              boxShadow: "0 4px 24px rgba(99,102,241,0.08)",
-            }}
-          >
-            <input
-              ref={inputRef}
-              type="file"
-              accept=".csv"
-              style={{ display: "none" }}
-              onChange={(e) => processFile(e.target.files[0])}
-            />
-            <div style={{ fontSize: 40, marginBottom: 12 }}>
-              {dragging ? "📂" : "📊"}
-            </div>
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: 16,
-                color: dragging ? "#6366f1" : "#111827",
-                marginBottom: 6,
-              }}
-            >
-              {dragging ? "Drop it here!" : "Drag & drop your CSV file here"}
-            </div>
-            <div style={{ fontSize: 13, color: "#9ca3af", marginBottom: 16 }}>
-              or click to browse your computer
-            </div>
-            <div
-              style={{
-                background: "#6366f1",
-                color: "#fff",
-                borderRadius: 8,
-                padding: "10px 28px",
-                display: "inline-block",
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              Choose File
-            </div>
-            {status === "error" && (
-              <div
-                style={{
-                  marginTop: 14,
-                  background: "#fef2f2",
-                  border: "1px solid #fca5a5",
-                  borderRadius: 8,
-                  padding: "8px 14px",
-                  fontSize: 12,
-                  color: "#dc2626",
-                }}
-              >
-                {errorMsg}
-              </div>
-            )}
-          </div>
-
-          {/* Divider */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: 12,
-              width: "100%",
-              maxWidth: 520,
-              marginBottom: 12,
+              marginBottom: 24,
             }}
           >
-            <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
-            <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>
-              OR
-            </span>
-            <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+
+            <div
+              style={{
+                width: 52,
+                height: 52,
+                borderRadius: 16,
+                background:
+                  "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                boxShadow:
+                  "0 0 40px rgba(139,92,246,0.45)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 800,
+                fontSize: 22,
+              }}
+            >
+              E
+            </div>
+
+            <div>
+
+              <div
+                style={{
+                  fontSize: 24,
+                  fontWeight: 800,
+                }}
+              >
+                Ecomlytics
+              </div>
+
+              <div
+                style={{
+                  fontSize: 13,
+                  color: "#cbd5e1",
+                }}
+              >
+                AI Powered Business Intelligence
+              </div>
+
+            </div>
+
           </div>
 
-          {/* Paste zone */}
           <div
             style={{
-              width: "100%",
-              maxWidth: 520,
-              background: "#fff",
-              border: "1px solid #e5e7eb",
-              borderRadius: 16,
-              padding: "20px 24px",
-              marginBottom: 20,
-              boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+              fontSize: 58,
+              fontWeight: 900,
+              lineHeight: 1.05,
+              marginBottom: 24,
+              letterSpacing: -2,
+            }}
+          >
+            Turn raw store
+            <br />
+            data into
+            <span
+              style={{
+                background:
+                  "linear-gradient(135deg,#818cf8,#c084fc)",
+                WebkitBackgroundClip:
+                  "text",
+                WebkitTextFillColor:
+                  "transparent",
+              }}
+            >
+              {" "}
+              AI insights
+            </span>
+          </div>
+          <motion.div
+
+            animate={{
+              opacity: [0.5, 1, 0.5],
+            }}
+
+            transition={{
+              repeat: Infinity,
+              duration: 2,
+            }}
+
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              background:
+                "rgba(16,185,129,0.12)",
+              border:
+                "1px solid rgba(16,185,129,0.25)",
+              color: "#6ee7b7",
+              padding: "10px 16px",
+              borderRadius: 999,
+              marginBottom: 28,
+              fontSize: 13,
+              fontWeight: 600,
             }}
           >
             <div
               style={{
-                fontWeight: 700,
-                fontSize: 14,
-                color: "#111827",
-                marginBottom: 6,
-              }}
-            >
-              📋 Paste your CSV data directly
-            </div>
-            <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 10 }}>
-              Open your CSV file in Notepad or Excel → Select All → Copy → Paste
-              below
-            </div>
-            <textarea
-              value={pasteText}
-              onChange={(e) => setPasteText(e.target.value)}
-              placeholder={
-                "date,product,category,views,orders,revenue,price\n2026-01-08,Smart Watch,Electronics,281,45,223868,4999\n2026-01-08,Running Shoes,Clothing,198,32,110245,3499\n..."
-              }
-              style={{
-                width: "100%",
-                height: 120,
-                padding: "10px 12px",
-                borderRadius: 8,
-                border: "1px solid #d1d5db",
-                fontSize: 12,
-                fontFamily: "monospace",
-                color: "#374151",
-                resize: "vertical",
-                outline: "none",
-                lineHeight: 1.5,
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#10b981",
               }}
             />
-            <button
-              onClick={handlePasteSubmit}
-              style={{
-                marginTop: 10,
-                background: "#6366f1",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                padding: "10px 24px",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                width: "100%",
-              }}
-            >
-              Analyse Pasted Data
-            </button>
-          </div>
-        </>
-      )}
 
-      {/* ── PASTE mode — triggered when FileReader is blocked ── */}
-      {status === "paste" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: 520,
-            background: "#fff",
-            border: "2px solid #6366f1",
-            borderRadius: 16,
-            padding: "24px",
-            marginBottom: 20,
-            boxShadow: "0 4px 24px rgba(99,102,241,0.08)",
-          }}
-        >
+            AI Systems Online
+          </motion.div>
           <div
             style={{
-              fontWeight: 700,
-              fontSize: 15,
-              color: "#111827",
-              marginBottom: 4,
+              color: "#cbd5e1",
+              fontSize: 17,
+              lineHeight: 1.8,
+              maxWidth: 620,
+              marginBottom: 36,
             }}
           >
-            📋 One more step — paste your file contents
+            Forecast revenue, detect unusual
+            sales behaviour, identify weak
+            products, and generate intelligent
+            recommendations using machine
+            learning.
           </div>
-          <div
-            style={{
-              fontSize: 12,
-              color: "#6b7280",
-              marginBottom: 14,
-              lineHeight: 1.6,
-            }}
-          >
-            Your file was selected successfully. Now open{" "}
-            <strong>ecomlytics_store_data.csv</strong> in Notepad (right-click →
-            Open with → Notepad), press <strong>Ctrl+A</strong> then{" "}
-            <strong>Ctrl+C</strong>, and paste it below.
-          </div>
-          <textarea
-            value={pasteText}
-            onChange={(e) => setPasteText(e.target.value)}
-            placeholder="Paste your CSV contents here..."
-            style={{
-              width: "100%",
-              height: 140,
-              padding: "10px 12px",
-              borderRadius: 8,
-              border: "1px solid #d1d5db",
-              fontSize: 12,
-              fontFamily: "monospace",
-              color: "#374151",
-              resize: "vertical",
-              outline: "none",
-              lineHeight: 1.5,
-            }}
-          />
-          {errorMsg && (
-            <div style={{ marginTop: 8, fontSize: 12, color: "#dc2626" }}>
-              {errorMsg}
-            </div>
-          )}
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <button
-              onClick={handlePasteSubmit}
-              style={{
-                flex: 1,
-                background: "#6366f1",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                padding: "10px",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Analyse Data
-            </button>
-            <button
-              onClick={() => {
-                setStatus("idle");
-                setPasteText("");
-                setErrorMsg("");
-              }}
-              style={{
-                background: "#f3f4f6",
-                color: "#374151",
-                border: "1px solid #e5e7eb",
-                borderRadius: 8,
-                padding: "10px 16px",
-                fontSize: 13,
-                cursor: "pointer",
-              }}
-            >
-              Back
-            </button>
-          </div>
-        </div>
-      )}
 
-      {/* What columns you need */}
-      {status !== "loading" && (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: 520,
-            background: "#fff",
-            borderRadius: 14,
-            padding: "18px 22px",
-            marginBottom: 16,
-            border: "1px solid #e5e7eb",
-            boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
-          }}
-        >
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: 13,
-              color: "#111827",
-              marginBottom: 8,
-            }}
-          >
-            What should the file look like?
-          </div>
-          <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 10 }}>
-            One row per product per day, with these columns (in any order):
-          </div>
           <div
             style={{
               display: "flex",
+              gap: 18,
               flexWrap: "wrap",
-              gap: 5,
-              marginBottom: 12,
             }}
           >
-            {COLS.map((s) => (
-              <span
-                key={s}
+
+            {[
+              "SARIMA Forecasting",
+              "Isolation Forest",
+              "K-Means Clustering",
+              "AI Recommendations",
+            ].map((t) => (
+
+              <motion.div
+                whileHover={{
+                  scale: 1.05,
+                }}
+
+                key={t}
+
                 style={{
-                  background: "#f3f4f6",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 5,
-                  padding: "2px 9px",
-                  fontSize: 11,
-                  color: "#374151",
+                  background:
+                    "rgba(255,255,255,0.06)",
+                  border:
+                    "1px solid rgba(255,255,255,0.08)",
+                  padding:
+                    "12px 18px",
+                  borderRadius: 14,
+                  backdropFilter:
+                    "blur(20px)",
+                  fontSize: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                 }}
               >
-                {s}
-              </span>
+                <HiSparkles />
+                {t}
+              </motion.div>
             ))}
           </div>
+
+        </motion.div>
+
+        {/* RIGHT SIDE */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            scale: 0.92,
+          }}
+
+          animate={{
+            opacity: 1,
+            scale: 1,
+          }}
+
+          transition={{
+            duration: 0.7,
+          }}
+        >
+
           <div
             style={{
-              background: "#eff6ff",
-              border: "1px solid #bfdbfe",
-              borderRadius: 7,
-              padding: "7px 11px",
-              fontSize: 11,
-              color: "#1d4ed8",
+              background:
+                "rgba(255,255,255,0.06)",
+              backdropFilter:
+                "blur(30px)",
+              border:
+                "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 30,
+              padding: 36,
+              boxShadow:
+                "0 20px 60px rgba(0,0,0,0.45)",
             }}
           >
-            💡 Column names can vary — Ecomlytics detects them automatically.
+
+            {status === "loading" ? (
+
+              <div
+                style={{
+                  position: "relative",
+                  overflow: "hidden",
+                  borderRadius: 28,
+                  minHeight: 620,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: "50px 30px",
+                  background:
+                    "radial-gradient(circle at top,#1e293b,#0f172a 70%)",
+                }}
+              >
+
+                <motion.div
+                  animate={{
+                    y: [-400, 700],
+                  }}
+
+                  transition={{
+                    repeat: Infinity,
+                    duration: 3,
+                    ease: "linear",
+                  }}
+
+                  style={{
+                    position: "absolute",
+                    width: "120%",
+                    height: 120,
+                    background:
+                      "linear-gradient(to bottom,transparent,rgba(139,92,246,0.18),transparent)",
+                    filter: "blur(8px)",
+                  }}
+                />
+
+                {[...Array(25)].map((_, i) => (
+
+                  <motion.div
+                    key={i}
+
+                    animate={{
+                      y: [0, -40, 0],
+                      opacity: [0.2, 1, 0.2],
+                    }}
+
+                    transition={{
+                      duration: 3 + i * 0.2,
+                      repeat: Infinity,
+                    }}
+
+                    style={{
+                      position: "absolute",
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background:
+                        "rgba(139,92,246,0.6)",
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                      filter: "blur(1px)",
+                    }}
+                  />
+                ))}
+
+                <motion.div
+                  animate={{
+                    scale: [1, 1.05, 1],
+                  }}
+
+                  transition={{
+                    repeat: Infinity,
+                    duration: 3,
+                  }}
+
+                  style={{
+                    width: 260,
+                    zIndex: 2,
+                    marginBottom: -20,
+                  }}
+                >
+                  <Lottie
+                    animationData={aiAnimation}
+                    loop={true}
+                  />
+                </motion.div>
+
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: 10,
+                  }}
+
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+
+                  style={{
+                    fontSize: 34,
+                    fontWeight: 800,
+                    color: "#fff",
+                    marginBottom: 14,
+                    zIndex: 2,
+                    textAlign: "center",
+                  }}
+                >
+                  AI Analysing Store Data
+                </motion.div>
+
+                <motion.div
+                  key={loadingIndex}
+
+                  initial={{
+                    opacity: 0,
+                    y: 10,
+                  }}
+
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+
+                  transition={{
+                    duration: 0.4,
+                  }}
+
+                  style={{
+                    color: "#a5b4fc",
+                    fontSize: 17,
+                    marginBottom: 40,
+                    zIndex: 2,
+                    textAlign: "center",
+                    minHeight: 30,
+                  }}
+                >
+                  {loadingMessages[loadingIndex]}
+                </motion.div>
+
+                <div
+                  style={{
+                    width: "100%",
+                    maxWidth: 420,
+                    zIndex: 2,
+                  }}
+                >
+
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: 12,
+                      color: "#cbd5e1",
+                      fontSize: 13,
+                    }}
+                  >
+                    <span>AI Processing</span>
+
+                    <span>
+                      <CountUp end={progress} />
+                      %
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      background:
+                        "rgba(255,255,255,0.08)",
+                      height: 14,
+                      borderRadius: 999,
+                      overflow: "hidden",
+                    }}
+                  >
+
+                    <motion.div
+                      animate={{
+                        width: `${progress}%`,
+                      }}
+
+                      transition={{
+                        duration: 0.4,
+                      }}
+
+                      style={{
+                        height: "100%",
+                        borderRadius: 999,
+                        background:
+                          "linear-gradient(90deg,#6366f1,#8b5cf6,#c084fc)",
+                        boxShadow:
+                          "0 0 30px rgba(139,92,246,0.7)",
+                      }}
+                    />
+
+                  </div>
+                </div>
+
+              </div>
+
+            ) : (
+
+              <>
+
+                <Tilt
+                  glareEnable={true}
+                  glareMaxOpacity={0.12}
+                  scale={1.01}
+                >
+
+                  <div
+                    onDrop={onDrop}
+
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragging(true);
+                    }}
+
+                    onDragLeave={() =>
+                      setDragging(false)
+                    }
+
+                    onClick={() =>
+                      inputRef.current?.click()
+                    }
+
+                    style={{
+                      border:
+                        dragging
+                          ? "2px solid #8b5cf6"
+                          : "2px dashed rgba(255,255,255,0.15)",
+
+                      borderRadius: 24,
+
+                      padding:
+                        "60px 30px",
+
+                      textAlign:
+                        "center",
+
+                      cursor:
+                        "pointer",
+
+                      background:
+                        dragging
+                          ? "rgba(99,102,241,0.12)"
+                          : "rgba(255,255,255,0.03)",
+
+                      transition:
+                        "all .25s ease",
+                    }}
+                  >
+
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      accept=".csv"
+                      style={{
+                        display: "none",
+                      }}
+                      onChange={(e) =>
+                        processFile(
+                          e.target.files[0]
+                        )
+                      }
+                    />
+
+                    <motion.div
+                      whileHover={{
+                        scale: 1.1,
+                      }}
+                    >
+                      <FiUploadCloud
+                        size={70}
+                        color="#8b5cf6"
+                      />
+                    </motion.div>
+
+                    <div
+                      style={{
+                        fontSize: 24,
+                        fontWeight: 700,
+                        marginTop: 20,
+                        marginBottom: 10,
+                      }}
+                    >
+                      Upload Store Data
+                    </div>
+
+                    <div
+                      style={{
+                        color: "#94a3b8",
+                        fontSize: 15,
+                        lineHeight: 1.7,
+                        marginBottom: 28,
+                      }}
+                    >
+                      Drag and drop your CSV
+                      file or click to browse
+                    </div>
+
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 10,
+                        background:
+                          "linear-gradient(135deg,#6366f1,#8b5cf6)",
+                        padding:
+                          "14px 28px",
+                        borderRadius: 14,
+                        fontWeight: 700,
+                      }}
+                    >
+                      <FiBarChart2 />
+                      Analyse Data
+                    </div>
+
+                  </div>
+
+                </Tilt>
+
+                <div
+                  style={{
+                    marginTop: 28,
+
+                    display: "grid",
+
+                    gridTemplateColumns:
+                      window.innerWidth < 700
+                        ? "1fr"
+                        : window.innerWidth < 1100
+                          ? "repeat(2,1fr)"
+                          : "repeat(3,1fr)",
+
+                    gap: 18,
+                  }}
+                >
+
+                  {[
+                    {
+                      icon: <FiCpu />,
+                      title: "ML Forecasting",
+                      desc: "SARIMA predictions",
+                    },
+
+                    {
+                      icon: <FiCheckCircle />,
+                      title: "AI Insights",
+                      desc: "Anomaly detection",
+                    },
+
+                    {
+                      icon: <HiSparkles />,
+                      title: "Recommendations",
+                      desc: "Smart business actions",
+                    },
+                  ].map((i) => (
+
+                    <Tilt
+                      key={i.title}
+
+                      glareEnable={true}
+                      glareMaxOpacity={0.18}
+
+                      scale={1.02}
+
+                      tiltMaxAngleX={12}
+                      tiltMaxAngleY={12}
+
+                      perspective={1200}
+                    >
+
+                      <motion.div
+                        whileHover={{
+                          y: -6,
+                        }}
+
+                        style={{
+                          background:
+                            "linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))",
+
+                          border:
+                            "1px solid rgba(255,255,255,0.08)",
+
+                          borderRadius: 22,
+
+                          padding:
+                            window.innerWidth < 700
+                              ? "22px 16px"
+                              : "26px 18px",
+
+                          textAlign: "center",
+
+                          minHeight:
+                            window.innerWidth < 700
+                              ? 160
+                              : 180,
+
+                          boxShadow:
+                            "0 10px 30px rgba(0,0,0,0.25)",
+
+                          backdropFilter: "blur(18px)",
+
+                          position: "relative",
+
+                          overflow: "hidden",
+
+                          display: "flex",
+
+                          flexDirection: "column",
+
+                          justifyContent: "center",
+                        }}
+                      >
+
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+
+                            background:
+                              "radial-gradient(circle at top,rgba(139,92,246,0.16),transparent 60%)",
+
+                            pointerEvents: "none",
+                          }}
+                        />
+
+                        <motion.div
+
+                          animate={{
+                            y: [0, -4, 0],
+                          }}
+
+                          transition={{
+                            repeat: Infinity,
+                            duration: 3,
+                          }}
+
+                          style={{
+                            fontSize:
+                              window.innerWidth < 700
+                                ? 28
+                                : 34,
+
+                            marginBottom: 14,
+
+                            color: "#8b5cf6",
+                          }}
+                        >
+                          {i.icon}
+                        </motion.div>
+
+                        <div
+                          style={{
+                            fontSize:
+                              window.innerWidth < 700
+                                ? 20
+                                : 16,
+
+                            fontWeight: 700,
+
+                            color: "#fff",
+
+                            marginBottom: 8,
+
+                            lineHeight: 1.3,
+
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {i.title}
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize:
+                              window.innerWidth < 700
+                                ? 14
+                                : 13,
+
+                            color: "#94a3b8",
+
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {i.desc}
+                        </div>
+
+                      </motion.div>
+
+                    </Tilt>
+                  ))}
+                </div>
+
+              </>
+            )}
           </div>
-        </div>
-      )}
+        </motion.div>
+      </div>
     </div>
   );
 };
