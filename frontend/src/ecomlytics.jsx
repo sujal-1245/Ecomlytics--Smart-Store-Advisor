@@ -3218,81 +3218,277 @@ Ask me anything about your store performance, products, risks, growth opportunit
 
             {/* Monthly */}
             {monthly.length > 1 && (
-              <div
+
+              <motion.div
+
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+
+                transition={{
+                  duration: 0.5,
+                }}
+
                 style={{
-                  background: "#fff",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 14,
-                  padding: 18,
-                  marginBottom: 14,
+                  background:
+                    "linear-gradient(180deg,#ffffff,#f8fafc)",
+
+                  border:
+                    "1px solid #e5e7eb",
+
+                  borderRadius: 24,
+
+                  padding:
+                    window.innerWidth < 768
+                      ? 18
+                      : 24,
+
+                  marginBottom: 18,
+
+                  overflow: "visible",
+
+                  boxShadow:
+                    "0 10px 30px rgba(15,23,42,0.04)",
                 }}
               >
+
                 <div
                   style={{
-                    fontWeight: 600,
-                    fontSize: 14,
-                    color: "#111827",
-                    marginBottom: 10,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 18,
+                    flexWrap: "wrap",
+                    gap: 8,
                   }}
                 >
-                  Month-by-month earnings
+
+                  <div>
+
+                    <div
+                      style={{
+                        fontWeight: 800,
+                        fontSize:
+                          window.innerWidth < 768
+                            ? 18
+                            : 22,
+
+                        color: "#111827",
+                      }}
+                    >
+                      Revenue Timeline
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: 13,
+                        color: "#6b7280",
+                        marginTop: 4,
+                      }}
+                    >
+                      Monthly earnings and growth trends
+                    </div>
+
+                  </div>
+
+                  <div
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: 999,
+                      background:
+                        "rgba(99,102,241,0.08)",
+
+                      color: "#6366f1",
+
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {monthly.length} Months Analysed
+                  </div>
+
                 </div>
-                <div style={{ display: "flex", gap: 10 }}>
+
+                <div
+                  style={{
+                    display: "flex",
+
+                    gap: 16,
+
+                    overflowX: "auto",
+
+                    overflowY: "hidden",
+
+                    paddingBottom: 14,
+
+                    scrollbarWidth: "thin",
+
+                    WebkitOverflowScrolling: "touch",
+
+                    scrollBehavior: "smooth",
+                  }}
+                >
+
                   {monthly.map((m, i) => {
-                    const prev = i > 0 ? monthly[i - 1].revenue : null;
+
+                    const prev =
+                      i > 0
+                        ? monthly[i - 1].revenue
+                        : null;
+
                     const chg = prev
-                      ? (((m.revenue - prev) / prev) * 100).toFixed(0)
+                      ? (
+                        ((m.revenue - prev) / prev) * 100
+                      ).toFixed(0)
                       : null;
+
+                    const positive =
+                      Number(chg) >= 0;
+
                     return (
-                      <div
+
+                      <motion.div
                         key={m.month}
+
+                        whileHover={{
+                          y: -6,
+                          scale: 1.02,
+                        }}
+
+                        transition={{
+                          duration: 0.2,
+                        }}
+
                         style={{
-                          flex: 1,
-                          background: "#f9fafb",
-                          border: "1px solid #e5e7eb",
-                          borderRadius: 10,
-                          padding: "10px 12px",
+                          minWidth:
+                            window.innerWidth < 768
+                              ? 140
+                              : 170,
+
+                          background:
+                            "linear-gradient(180deg,#ffffff,#f8fafc)",
+
+                          border:
+                            positive
+                              ? "1px solid rgba(34,197,94,0.2)"
+                              : "1px solid rgba(239,68,68,0.15)",
+
+                          borderRadius: 20,
+
+                          padding: 18,
+
+                          position: "relative",
+
+                          overflow: "hidden",
+
+                          boxShadow:
+                            "0 6px 20px rgba(0,0,0,0.05)",
+
+                          flexShrink: 0,
                         }}
                       >
+
                         <div
                           style={{
-                            fontSize: 11,
-                            color: "#9ca3af",
-                            marginBottom: 2,
+                            position: "absolute",
+                            top: -40,
+                            right: -40,
+
+                            width: 100,
+                            height: 100,
+
+                            borderRadius: "50%",
+
+                            background:
+                              positive
+                                ? "rgba(34,197,94,0.08)"
+                                : "rgba(239,68,68,0.06)",
+                          }}
+                        />
+
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#94a3b8",
+                            marginBottom: 10,
+                            fontWeight: 600,
                           }}
                         >
                           {m.label}
                         </div>
+
                         <div
                           style={{
-                            fontSize: 17,
-                            fontWeight: 700,
+                            fontSize:
+                              window.innerWidth < 768
+                                ? 24
+                                : 28,
+
+                            fontWeight: 800,
                             color: "#111827",
+                            marginBottom: 8,
                           }}
                         >
                           ₹{m.revenue}L
                         </div>
-                        <div style={{ fontSize: 11, color: "#6b7280" }}>
+
+                        <div
+                          style={{
+                            fontSize: 13,
+                            color: "#64748b",
+                            marginBottom: 14,
+                          }}
+                        >
                           {m.orders.toLocaleString()} orders
                         </div>
+
                         {chg && (
+
                           <div
                             style={{
-                              fontSize: 11,
-                              fontWeight: 600,
-                              color: Number(chg) >= 0 ? "#16a34a" : "#dc2626",
-                              marginTop: 3,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 6,
+
+                              padding: "7px 10px",
+
+                              borderRadius: 999,
+
+                              background:
+                                positive
+                                  ? "rgba(34,197,94,0.12)"
+                                  : "rgba(239,68,68,0.10)",
+
+                              color:
+                                positive
+                                  ? "#16a34a"
+                                  : "#dc2626",
+
+                              fontSize: 12,
+                              fontWeight: 700,
                             }}
                           >
-                            {Number(chg) >= 0 ? "+" : ""}
-                            {chg}% vs prev
+
+                            {positive ? "↗" : "↘"}
+
+                            {positive ? "+" : ""}
+                            {chg}%
+
                           </div>
                         )}
-                      </div>
+
+                      </motion.div>
                     );
                   })}
                 </div>
-              </div>
+
+              </motion.div>
             )}
 
             {/* Day of week */}
