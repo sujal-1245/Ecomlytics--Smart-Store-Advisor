@@ -245,46 +245,174 @@ function analyseData(rows) {
   const top3Rev = segmented.slice(0, 3).reduce((a, p) => a + p.revenue, 0);
   const concPct = totalRev > 0 ? +((top3Rev / totalRev) * 100).toFixed(1) : 0;
 
-  // ── Health score — balanced so no single metric dominates ──
-  // Sales trend: needs strong growth to score high
-  const tScore =
-    trendPct >= 10
-      ? 25
-      : trendPct >= 3
-        ? 20
-        : trendPct >= 0
-          ? 15
-          : trendPct >= -10
-            ? 8
-            : 3;
-  // Buying rate: capped at 20 max — a good buy rate alone doesn't mean a healthy business.
-  // Also reduced 15% when trend is negative, because conversion can't offset falling sales.
+  // ── TRUE WEIGHTED HEALTH SCORING ENGINE ──
+
+  // FINAL WEIGHTS
+  const WEIGHTS = {
+    salesTrend: 0.40,
+    buyingRate: 0.35,
+    productVariety: 0.15,
+    unusualEvents: 0.10,
+  };
+
+  // Helper
+  const clamp = (n, min, max) =>
+    Math.min(Math.max(n, min), max);
+
+  // ─────────────────────────────────────────
+  // SALES TREND SCORE (0–100)
+  // ─────────────────────────────────────────
+  let salesTrendScore = 50;
+
+  if (trendPct >= 25) salesTrendScore = 100;
+  else if (trendPct >= 15) salesTrendScore = 90;
+  else if (trendPct >= 8) salesTrendScore = 80;
+  else if (trendPct >= 3) salesTrendScore = 70;
+  else if (trendPct >= 0) salesTrendScore = 60;
+  else if (trendPct >= -5) salesTrendScore = 45;
+  else if (trendPct >= -10) salesTrendScore = 30;
+  else if (trendPct >= -20) salesTrendScore = 15;
+  else salesTrendScore = 5;
+
+  // ─────────────────────────────────────────
+  // BUYING RATE SCORE (0–100)
+  // ─────────────────────────────────────────
   const avgBuyRate = categories.length
-    ? mean(categories.map((c) => c.buying_rate))
+    ? mean(categories.map(c => c.buying_rate))
     : 0;
-  const bRaw =
-    avgBuyRate >= 8 ? 20 : avgBuyRate >= 5 ? 16 : avgBuyRate >= 2 ? 10 : 4;
-  const bScore = trendPct < 0 ? Math.round(bRaw * 0.85) : bRaw;
-  // Concentration: 60%+ revenue in top 3 products is genuinely high risk
-  const cScore = concPct < 35 ? 25 : concPct < 50 ? 18 : concPct < 65 ? 10 : 4;
-  // Anomaly health: even 1-3 unusual days meaningfully lowers the score
-  const aScore =
-    unusualDays.length === 0
-      ? 25
-      : unusualDays.length <= 1
-        ? 18
-        : unusualDays.length <= 3
-          ? 10
-          : 4;
-  const hTotal = tScore + bScore + cScore + aScore;
+
+  const avgViews = categories.length
+    ? mean(categories.map(c => c.views))
+    : 0;
+
+  let buyingRateScore = 40;
+
+  if (avgBuyRate >= 12) buyingRateScore = 100;
+  else if (avgBuyRate >= 9) buyingRateScore = 85;
+  else if (avgBuyRate >= 6) buyingRateScore = 70;
+  else if (avgBuyRate >= 4) buyingRateScore = 55;
+  else if (avgBuyRate >= 2) buyingRateScore = 35;
+  else buyingRateScore = 15;
+
+  // High traffic + poor conversion penalty
+  if (avgViews > 500 && avgBuyRate < 3) {
+    buyingRateScore -= 15;
+  }
+
+  // ─────────────────────────────────────────
+  // PRODUCT VARIETY SCORE (0–100)
+  // ─────────────────────────────────────────
+  let varietyScore = 60;
+
+  // lower concentration = healthier
+  if (concPct < 30) varietyScore = 100;
+  else if (concPct < 45) varietyScore = 80;
+  else if (concPct < 60) varietyScore = 60;
+  else if (concPct < 75) varietyScore = 35;
+  else varietyScore = 15;
+
+  // ─────────────────────────────────────────
+  // UNUSUAL EVENTS SCORE (0–100)
+  // ─────────────────────────────────────────
+  let anomalyScore = 100;
+
+  const anomalyDensity =
+    daily.length > 0
+      ? unusualDays.length / daily.length
+      : 0;
+
+  if (unusualDays.length === 0) anomalyScore = 100;
+  else if (unusualDays.length <= 2) anomalyScore = 80;
+  else if (unusualDays.length <= 5) anomalyScore = 55;
+  else anomalyScore = 25;
+
+  // Frequent anomalies = stronger penalty
+  if (anomalyDensity > 0.15) {
+    anomalyScore -= 15;
+  }
+
+  anomalyScore = clamp(anomalyScore, 0, 100);
+
+  // ─────────────────────────────────────────
+  // WEIGHTED BASE SCORE
+  // ─────────────────────────────────────────
+  let weightedScore =
+    salesTrendScore * WEIGHTS.salesTrend +
+    buyingRateScore * WEIGHTS.buyingRate +
+    varietyScore * WEIGHTS.productVariety +
+    anomalyScore * WEIGHTS.unusualEvents;
+
+  // ─────────────────────────────────────────
+  // MOMENTUM BONUS
+  // ─────────────────────────────────────────
+
+  // Strong positive momentum
+  if (trendPct >= 20) {
+    weightedScore += 8;
+  } else if (trendPct >= 10) {
+    weightedScore += 5;
+  } else if (trendPct >= 5) {
+    weightedScore += 3;
+  }
+
+  // Strong negative momentum
+  if (trendPct <= -20) {
+    weightedScore -= 12;
+  } else if (trendPct <= -10) {
+    weightedScore -= 7;
+  }
+
+  // ─────────────────────────────────────────
+  // ANOMALY PENALTIES
+  // ─────────────────────────────────────────
+
+  if (unusualDays.length >= 5) {
+    weightedScore -= 5;
+  }
+
+  if (anomalyDensity > 0.25) {
+    weightedScore -= 8;
+  }
+
+  // ─────────────────────────────────────────
+  // FINAL HEALTH SCORE
+  // ─────────────────────────────────────────
+  const hTotal = clamp(
+    Math.round(weightedScore),
+    0,
+    100
+  );
+
+  // ─────────────────────────────────────────
+  // HEALTH STATUS
+  // ─────────────────────────────────────────
   const hStatus =
-    hTotal >= 80
-      ? "Healthy"
-      : hTotal >= 60
-        ? "Good"
-        : hTotal >= 40
-          ? "Needs Attention"
-          : "At Risk";
+    hTotal >= 85
+      ? "Excellent"
+      : hTotal >= 70
+        ? "Healthy"
+        : hTotal >= 55
+          ? "Stable"
+          : hTotal >= 40
+            ? "Needs Attention"
+            : "Critical";
+
+  // Component values for UI
+  const tScore = Math.round(
+    salesTrendScore * WEIGHTS.salesTrend
+  );
+
+  const bScore = Math.round(
+    buyingRateScore * WEIGHTS.buyingRate
+  );
+
+  const cScore = Math.round(
+    varietyScore * WEIGHTS.productVariety
+  );
+
+  const aScore = Math.round(
+    anomalyScore * WEIGHTS.unusualEvents
+  );
 
   // ── Alerts ──
   const alerts = [];
@@ -494,8 +622,17 @@ function analyseData(rows) {
         buying_rate: bScore,
         product_variety: cScore,
         unusual_events: aScore,
+        // consistency: consistencyScore,
       },
-      explanation: `Your store scored ${hTotal} out of 100 — ${hStatus}. ${hTotal < 60 ? "There are clear opportunities to improve." : "Keep building on what's working."}`,
+      explanation: `Your store scored ${hTotal} out of 100 — ${hStatus}. ${trendPct >= 10
+        ? "Strong sales momentum is boosting overall business health."
+        : trendPct <= -10
+          ? "Sales decline is significantly hurting store health."
+          : "Sales momentum is relatively stable."
+        } ${concPct >= 65
+          ? "Revenue concentration risk is high because too much income depends on a few products."
+          : "Revenue distribution across products is reasonably balanced."
+        }`,
     },
     alerts,
     quickWins,
@@ -2923,21 +3060,35 @@ Ask me anything about your store performance, products, risks, growth opportunit
                   </div>
                   <div style={{ display: "flex", gap: 7, flexWrap: "wrap" }}>
                     {[
-                      ["Sales trend", healthScore.components.sales_trend],
-                      ["Buying rate", healthScore.components.buying_rate],
+                      [
+                        "Sales trend",
+                        healthScore.components.sales_trend,
+                        40,
+                      ],
+                      [
+                        "Buying rate",
+                        healthScore.components.buying_rate,
+                        35,
+                      ],
                       [
                         "Product variety",
                         healthScore.components.product_variety,
+                        15,
                       ],
-                      ["Unusual events", healthScore.components.unusual_events],
-                    ].map(([l, v]) => (
+                      [
+                        "Unusual events",
+                        healthScore.components.unusual_events,
+                        10,
+                      ],
+                    ].map(([l, v, max]) => (
                       <div
                         key={l}
                         style={{
                           background: "#f3f4f6",
-                          borderRadius: 6,
-                          padding: "3px 8px",
+                          borderRadius: 8,
+                          padding: "5px 10px",
                           textAlign: "center",
+                          minWidth: 82,
                         }}
                       >
                         <div
@@ -2945,20 +3096,28 @@ Ask me anything about your store performance, products, risks, growth opportunit
                             fontSize: 12,
                             fontWeight: 700,
                             color:
-                              v >= 20
+                              v >= max * 0.7
                                 ? "#16a34a"
-                                : v >= 12
+                                : v >= max * 0.4
                                   ? "#f59e0b"
                                   : "#dc2626",
                           }}
                         >
-                          {v}/25
+                          {v}/{max}
                         </div>
-                        <div style={{ fontSize: 10, color: "#9ca3af" }}>
+
+                        <div
+                          style={{
+                            fontSize: 10,
+                            color: "#9ca3af",
+                            marginTop: 2,
+                          }}
+                        >
                           {l}
                         </div>
                       </div>
                     ))}
+                    
                   </div>
                 </div>
               </div>
