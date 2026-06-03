@@ -2900,7 +2900,7 @@ Ask me anything about your store performance, products, risks, growth opportunit
               />
 
               <Tile
-                label="Buying rate"
+                label="Visitor Conversion"
                 value={`${avgBuyRate}%`}
                 sub="Out of 100 visitors, this many buy"
               />
