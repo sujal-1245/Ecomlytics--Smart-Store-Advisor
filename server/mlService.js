@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const ML_URL = "http://localhost:8000";
+// const ML_URL = "http://localhost:8000";
+const ML_URL = "https://ecomlytics-smart-store-advisor.onrender.com";
 
 export const getForecast = async (revenue) => {
 

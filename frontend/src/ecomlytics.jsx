@@ -2210,7 +2210,7 @@ const Assistant = ({ data, msgs, setMsgs, loading, setLoading }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/chat", {
+      const res = await fetch("https://ecomlytics-smart-store-advisor.onrender.com/chat", {
         method: "POST",
 
         headers: {
@@ -2594,7 +2594,7 @@ Ask me anything about your store performance, products, risks, growth opportunit
 
       try {
 
-        const res = await fetch("http://localhost:5000/analyze", {
+        const res = await fetch("https://ecomlytics-smart-store-advisor.onrender.com/analyze", {
           method: "POST",
 
           headers: {
@@ -2612,7 +2612,7 @@ Ask me anything about your store performance, products, risks, growth opportunit
 
 
         const forecastRes = await fetch(
-          "http://localhost:5000/forecast",
+          "https://ecomlytics-smart-store-advisor.onrender.com/forecast",
           {
             method: "POST",
 
@@ -2631,7 +2631,7 @@ Ask me anything about your store performance, products, risks, growth opportunit
 
         setMlForecast(forecastData);
         const anomalyRes = await fetch(
-          "http://localhost:5000/anomalies",
+          "https://ecomlytics-smart-store-advisor.onrender.com/anomalies",
           {
             method: "POST",
 

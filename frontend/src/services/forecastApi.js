@@ -3,7 +3,7 @@ export const fetchForecast = async (daily) => {
   try {
 
     const res = await fetch(
-      "http://localhost:5000/forecast",
+      "https://ecomlytics-smart-store-advisor.onrender.com/forecast",
       {
 
         method: "POST",
